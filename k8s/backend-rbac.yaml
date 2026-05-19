@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: backend
+  namespace: nrdc-poc
+  labels:
+    app: backend
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: nrdc-poc-backend-reader
+  labels:
+    app.kubernetes.io/part-of: nrdc-poc
+rules:
+  - apiGroups: [""]
+    resources: ["nodes", "pods", "namespaces"]
+    verbs: ["get", "list"]
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: nrdc-poc-backend-reader
+  labels:
+    app.kubernetes.io/part-of: nrdc-poc
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: nrdc-poc-backend-reader
+subjects:
+  - kind: ServiceAccount
+    name: backend
+    namespace: nrdc-poc
