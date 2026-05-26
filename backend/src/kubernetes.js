@@ -44,6 +44,7 @@ function createClients() {
       source: 'in-cluster',
       core: kubeConfig.makeApiClient(k8s.CoreV1Api),
       apps: kubeConfig.makeApiClient(k8s.AppsV1Api),
+      batch: kubeConfig.makeApiClient(k8s.BatchV1Api),
     };
   }
 
@@ -59,6 +60,7 @@ function createClients() {
       source: 'kubeconfig',
       core: kubeConfig.makeApiClient(k8s.CoreV1Api),
       apps: kubeConfig.makeApiClient(k8s.AppsV1Api),
+      batch: kubeConfig.makeApiClient(k8s.BatchV1Api),
     };
   } catch {
     return null;
@@ -165,4 +167,10 @@ async function getClusterInfo() {
   };
 }
 
-module.exports = { getClusterInfo };
+module.exports = {
+  getClusterInfo,
+  createClients,
+  listItems,
+  getNamespace,
+  unavailableReason,
+};

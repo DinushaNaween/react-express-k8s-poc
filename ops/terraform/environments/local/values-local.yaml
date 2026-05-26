@@ -1,0 +1,22 @@
+global:
+  namespace: ops
+
+zeroclaw:
+  image:
+    repository: nrdc-zeroclaw-ops
+    tag: local
+    pullPolicy: IfNotPresent
+
+ollama:
+  enabled: false
+  model: llama3.2:1b
+
+rbac:
+  appNamespace: nrdc-poc
+
+cron:
+  intervalMinutes: 2
+
+config:
+  provider: ollama
+  model: llama3.2:1b

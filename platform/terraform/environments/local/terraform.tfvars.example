@@ -1,0 +1,2 @@
+cluster_name = "nrdc-poc"
+repo_root    = "REPLACE_WITH_REPO_ROOT"

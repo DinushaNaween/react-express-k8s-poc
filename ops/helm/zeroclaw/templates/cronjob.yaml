@@ -1,0 +1,38 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: nrdc-cluster-ops
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: zeroclaw-ops
+spec:
+  schedule: "*/{{ .Values.cron.intervalMinutes }} * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    metadata:
+      labels:
+        app: zeroclaw-ops
+        repair-trigger: scheduled
+    spec:
+      template:
+        metadata:
+          labels:
+            app: zeroclaw-ops
+            repair-trigger: scheduled
+        spec:
+          serviceAccountName: zeroclaw-ops
+          restartPolicy: OnFailure
+          containers:
+            - name: health-repair
+              image: "{{ .Values.zeroclaw.image.repository }}:{{ .Values.zeroclaw.image.tag }}"
+              imagePullPolicy: {{ .Values.zeroclaw.image.pullPolicy }}
+              command: ["/usr/local/bin/health-repair.sh"]
+              env:
+                - name: REPAIR_TRIGGER
+                  value: scheduled
+                - name: APP_NAMESPACE
+                  value: {{ .Values.rbac.appNamespace | quote }}
+                - name: BACKEND_URL
+                  value: "http://backend.{{ .Values.rbac.appNamespace }}.svc.cluster.local:3000"

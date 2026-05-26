@@ -7,7 +7,7 @@
 #   .\scripts\check-prerequisites.ps1 -Wait   # keep window open until Enter
 
 param(
-    [ValidateSet('all', 'dev', 'compose', 'kubernetes')]
+    [ValidateSet('all', 'dev', 'compose', 'kubernetes', 'local')]
     [string]$Profile = 'all',
     [switch]$Wait
 )
@@ -133,7 +133,7 @@ Write-Host ''
 Invoke-Check 'Git' { @{ Ok = (Test-CommandExists 'git'); Detail = (Get-CommandVersion 'git') } } -OptionalFor @('dev', 'compose', 'kubernetes')
 Invoke-Check 'Node.js 20+' { Test-NodeVersion } -RequiredFor @('dev', 'compose', 'kubernetes')
 Invoke-Check 'npm' { @{ Ok = (Test-CommandExists 'npm'); Detail = (Get-CommandVersion 'npm') } } -RequiredFor @('dev', 'compose', 'kubernetes')
-Invoke-Check 'Docker' { Test-DockerRunning } -RequiredFor @('compose', 'kubernetes') -OptionalFor @('dev')
+Invoke-Check 'Docker' { Test-DockerRunning } -RequiredFor @('compose', 'kubernetes', 'local') -OptionalFor @('dev')
 Invoke-Check 'Docker Compose' {
     if (Test-CommandExists 'docker') {
         $v = docker compose version 2>$null
@@ -145,16 +145,25 @@ Invoke-Check 'kubectl' {
     if (-not (Test-CommandExists 'kubectl')) { return @{ Ok = $false; Detail = 'not installed' } }
     $ver = (kubectl version --client 2>$null | Select-String 'Client Version' | Select-Object -First 1)
     @{ Ok = $true; Detail = ($(if ($ver) { $ver.Line.Trim() } else { 'installed' })) }
-} -RequiredFor @('kubernetes')
-Invoke-Check 'k3d' { @{ Ok = (Test-CommandExists 'k3d'); Detail = (Get-CommandVersion 'k3d' @('version')) } } -RequiredFor @('kubernetes')
-Invoke-Check 'Kubernetes cluster' { Test-KubectlCluster } -RequiredFor @('kubernetes')
-Invoke-Check 'k3d cluster (nrdc-poc)' { Test-K3dCluster } -OptionalFor @('kubernetes')
+} -RequiredFor @('kubernetes', 'local')
+Invoke-Check 'k3d' { @{ Ok = (Test-CommandExists 'k3d'); Detail = (Get-CommandVersion 'k3d' @('version')) } } -RequiredFor @('kubernetes', 'local')
+Invoke-Check 'Terraform' {
+    if (-not (Test-CommandExists 'terraform')) { return @{ Ok = $false; Detail = 'not installed' } }
+    @{ Ok = $true; Detail = (Get-CommandVersion 'terraform' @('version')) }
+} -RequiredFor @('local')
+Invoke-Check 'Helm' {
+    if (-not (Test-CommandExists 'helm')) { return @{ Ok = $false; Detail = 'not installed' } }
+    @{ Ok = $true; Detail = (Get-CommandVersion 'helm' @('version')) }
+} -RequiredFor @('local')
+Invoke-Check 'Kubernetes cluster' { Test-KubectlCluster } -RequiredFor @('kubernetes') -OptionalFor @('local')
+Invoke-Check 'k3d cluster (nrdc-poc)' { Test-K3dCluster } -OptionalFor @('kubernetes', 'local')
 
 Write-Host ''
 Write-Host 'Profiles:' -ForegroundColor Cyan
 Write-Host '  dev         — npm run dev (frontend + backend), no Docker/K8s'
 Write-Host '  compose     — docker compose up'
 Write-Host '  kubernetes  — k3d/k3s + kubectl deploy (full POC with cluster UI)'
+Write-Host '  local       — Terraform + k3d local-first deployment (platform + app + ops)'
 Write-Host ''
 
 $exitCode = 0

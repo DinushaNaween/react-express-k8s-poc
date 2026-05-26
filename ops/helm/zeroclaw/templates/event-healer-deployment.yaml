@@ -1,0 +1,44 @@
+{{- if .Values.eventHealer.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nrdc-event-healer
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: nrdc-event-healer
+    app.kubernetes.io/component: event-healer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nrdc-event-healer
+  template:
+    metadata:
+      labels:
+        app: nrdc-event-healer
+        app.kubernetes.io/component: event-healer
+    spec:
+      serviceAccountName: zeroclaw-ops
+      containers:
+        - name: watcher
+          image: "{{ .Values.zeroclaw.image.repository }}:{{ .Values.zeroclaw.image.tag }}"
+          imagePullPolicy: {{ .Values.zeroclaw.image.pullPolicy }}
+          command: ["/usr/local/bin/failure-watcher.sh"]
+          env:
+            - name: APP_NAMESPACE
+              value: {{ .Values.rbac.appNamespace | quote }}
+            - name: OPS_NAMESPACE
+              value: {{ .Values.global.namespace | quote }}
+            - name: BACKEND_URL
+              value: "http://backend.{{ .Values.rbac.appNamespace }}.svc.cluster.local:3000"
+            - name: REPAIR_CRONJOB
+              value: nrdc-cluster-ops
+            - name: EVENT_POLL_SECONDS
+              value: {{ .Values.eventHealer.pollSeconds | quote }}
+            - name: EVENT_GRACE_SECONDS
+              value: {{ .Values.eventHealer.graceSeconds | quote }}
+            - name: EVENT_DEBOUNCE_SECONDS
+              value: {{ .Values.eventHealer.debounceSeconds | quote }}
+          resources:
+            {{- toYaml .Values.eventHealer.resources | nindent 12 }}
+{{- end }}

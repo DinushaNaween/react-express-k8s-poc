@@ -1,0 +1,27 @@
+{{- if .Values.pdb.enabled }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "nrdc-poc.name" . }}-pdb
+  namespace: {{ include "nrdc-poc.namespace" . }}
+  labels:
+    {{- include "nrdc-poc.labels" . | nindent 4 }}
+spec:
+  minAvailable: {{ .Values.pdb.minAvailable }}
+  selector:
+    matchLabels:
+      app: backend
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "nrdc-poc.name" . }}-frontend-pdb
+  namespace: {{ include "nrdc-poc.namespace" . }}
+  labels:
+    {{- include "nrdc-poc.labels" . | nindent 4 }}
+spec:
+  minAvailable: {{ .Values.pdb.minAvailable }}
+  selector:
+    matchLabels:
+      app: frontend
+{{- end }}

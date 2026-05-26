@@ -15,9 +15,20 @@ body {
 }
 
 .app {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 2.5rem 1.25rem 3rem;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 1.5rem 1.25rem 2rem;
+  overflow-anchor: none;
+}
+
+.card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+  width: 100%;
+  overflow-anchor: none;
 }
 
 header {
@@ -41,14 +52,7 @@ h1 {
 .subtitle {
   margin: 0;
   color: #475569;
-  max-width: 42rem;
-}
-
-.card {
-  background: #fff;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+  max-width: none;
 }
 
 .card-header {
@@ -196,6 +200,107 @@ th {
   color: #92400e;
 }
 
+.badge.bad {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.section-intro {
+  border-left: 4px solid #0284c7;
+}
+
+.infra-unavailable {
+  border-left: 4px solid #f59e0b;
+}
+
+.subtle {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-top: 0.25rem;
+}
+
+code {
+  font-size: 0.78rem;
+  background: #e2e8f0;
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+}
+
+.stats.compact dd {
+  font-size: 0.95rem;
+}
+
+.heal-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.heal-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.heal-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.heal-level {
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #0369a1;
+}
+
+.heal-card h4 {
+  margin: 0 0 0.35rem;
+  font-size: 1rem;
+}
+
+.compact-list {
+  margin: 0.75rem 0 0;
+  padding-left: 1.1rem;
+  font-size: 0.85rem;
+}
+
+.mini-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.75rem;
+  margin: 0.75rem 0 0;
+}
+
+.mini-stats dt {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #64748b;
+  margin: 0;
+}
+
+.mini-stats dd {
+  margin: 0.15rem 0 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.raw-details {
+  margin-top: 1rem;
+}
+
+.raw-details summary {
+  cursor: pointer;
+  color: #0369a1;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
 .deploy-list {
   margin: 0;
   padding-left: 1.25rem;
@@ -203,4 +308,386 @@ th {
 
 .cluster-unavailable {
   border-left: 4px solid #f59e0b;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.live-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  color: #475569;
+  cursor: pointer;
+}
+
+.btn-secondary {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.btn-danger {
+  background: #dc2626;
+  color: #fff;
+  padding: 0.35rem 0.65rem;
+  font-size: 0.78rem;
+}
+
+.testlab-intro {
+  border-left-color: #dc2626;
+}
+
+.testlab-unavailable {
+  border-left: 4px solid #f59e0b;
+}
+
+.testlab-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+  overflow-anchor: none;
+}
+
+.testlab-split-panel {
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  overflow-anchor: none;
+}
+
+.testlab-probes-panel {
+  border-top: 3px solid #dc2626;
+}
+
+.testlab-agent-panel {
+  border-top: 3px solid #059669;
+  min-height: 480px;
+}
+
+.probe-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.probe-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 0.55rem 0.65rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.78rem;
+}
+
+.probe-card.row-failed {
+  border-color: #fecaca;
+  background: #fef2f2;
+}
+
+.probe-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.35rem;
+}
+
+.probe-card-title {
+  font-weight: 700;
+  font-size: 0.8rem;
+  line-height: 1.2;
+}
+
+.probe-card-meta {
+  color: #64748b;
+  font-size: 0.72rem;
+  line-height: 1.3;
+}
+
+.probe-card-status {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.probe-card-pod code {
+  font-size: 0.68rem;
+  word-break: break-all;
+}
+
+.probe-card-actions {
+  margin-top: auto;
+  padding-top: 0.25rem;
+}
+
+.probe-card-actions .btn-danger {
+  width: 100%;
+}
+
+.testlab-agent-panel .activity-feed {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.testlab-agent-panel .activity-list.scrollable {
+  flex: 1;
+  max-height: none;
+  min-height: 240px;
+}
+
+.recent-jobs-wrap {
+  margin-top: 0.75rem;
+}
+
+.recent-jobs-wrap .job-name {
+  font-size: 0.72rem;
+}
+
+@media (max-width: 1400px) {
+  .probe-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1100px) {
+  .probe-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 960px) {
+  .testlab-split {
+    grid-template-columns: 1fr;
+  }
+
+  .testlab-agent-panel {
+    min-height: auto;
+  }
+
+  .testlab-agent-panel .activity-list.scrollable {
+    min-height: 200px;
+    max-height: 320px;
+  }
+}
+
+@media (max-width: 560px) {
+  .probe-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.testlab-split-panel h3 {
+  margin: 0 0 0.25rem;
+}
+
+.panel-hint {
+  margin: 0 0 0.75rem;
+  font-size: 0.8rem;
+}
+
+.zeroclaw-monitor {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.countdown-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.countdown-bar {
+  position: relative;
+  height: 10px;
+  background: #e2e8f0;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.countdown-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #0284c7, #06b6d4);
+  border-radius: 999px;
+  transition: width 0.8s linear;
+}
+
+.countdown-bar.active .countdown-fill {
+  background: linear-gradient(90deg, #059669, #10b981);
+}
+
+.countdown-shimmer {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.45) 50%,
+    transparent 100%
+  );
+  animation: shimmer 1.2s infinite;
+}
+
+@keyframes shimmer {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+.countdown-meta {
+  margin-top: 0.6rem;
+  font-size: 0.85rem;
+}
+
+.countdown-status.running,
+.countdown-status.starting {
+  color: #059669;
+  font-weight: 600;
+}
+
+.countdown-status.waiting {
+  color: #475569;
+}
+
+.activity-feed {
+  margin-top: 1rem;
+}
+
+.activity-feed-head {
+  margin-bottom: 0.35rem;
+}
+
+.activity-empty {
+  margin-top: 1rem;
+  font-size: 0.85rem;
+}
+
+.activity-list {
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding: 0;
+}
+
+.activity-list.scrollable {
+  max-height: 420px;
+  overflow-y: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #fff;
+  overflow-anchor: none;
+}
+
+.activity-list li {
+  display: grid;
+  grid-template-columns: 150px 110px 1fr;
+  gap: 0.5rem;
+  padding: 0.45rem 0.75rem;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 0.82rem;
+  align-items: start;
+}
+
+.activity-list li:last-child {
+  border-bottom: none;
+}
+
+.activity-level-error {
+  background: #fef2f2;
+}
+
+.activity-level-warn {
+  background: #fffbeb;
+}
+
+.activity-level-success {
+  background: #f0fdf4;
+}
+
+.activity-time {
+  color: #64748b;
+  font-size: 0.78rem;
+}
+
+.activity-message {
+  word-break: break-word;
+}
+
+.activity-src {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.src-l2-repair,
+.src-l2-event {
+  color: #0369a1;
+}
+
+.src-l2-event-watcher {
+  color: #0d9488;
+}
+
+.src-l2-scheduler {
+  color: #7c3aed;
+}
+
+.src-gateway,
+.src-zeroclaw-gateway {
+  color: #059669;
+}
+
+.src-test,
+.src-test-action {
+  color: #dc2626;
+}
+
+.src-l1-kubelet,
+.src-l1-deployment {
+  color: #b45309;
+}
+
+.src-system {
+  color: #64748b;
+}
+
+.row-failed {
+  background: #fef2f2;
+}
+
+.node-pod-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 0.8rem;
+}
+
+.node-pod-list li {
+  padding: 0.2rem 0;
+}
+
+.activity-log.live pre {
+  margin-top: 0.5rem;
+  background: #0f172a;
+  color: #e2e8f0;
+  padding: 0.75rem;
+  border-radius: 6px;
+  max-height: 180px;
+  overflow-y: auto;
 }

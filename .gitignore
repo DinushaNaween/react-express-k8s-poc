@@ -7,7 +7,16 @@ dist/
 .DS_Store
 
 # Local project docs (not part of the POC repo)
-docs/
+docs/*
+!docs/local-setup.md
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
+platform/terraform/environments/local/terraform.tfvars
+platform/terraform/environments/local/.kubeconfig
 *.xlsx
 *.pdf
 *.docx

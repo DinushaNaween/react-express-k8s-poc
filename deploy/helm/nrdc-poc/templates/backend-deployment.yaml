@@ -2,11 +2,12 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: backend
-  namespace: nrdc-poc
+  namespace: {{ include "nrdc-poc.namespace" . }}
   labels:
     app: backend
+    {{- include "nrdc-poc.labels" . | nindent 4 }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.backend.replicaCount }}
   selector:
     matchLabels:
       app: backend
@@ -18,8 +19,8 @@ spec:
       serviceAccountName: backend
       containers:
         - name: api
-          image: nrdc-poc-backend:latest
-          imagePullPolicy: IfNotPresent
+          image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}"
+          imagePullPolicy: {{ .Values.backend.image.pullPolicy }}
           ports:
             - containerPort: 3000
           env:
@@ -32,11 +33,11 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
             - name: INFRA_ENVIRONMENT
-              value: local
+              value: {{ .Values.infrastructure.environment | quote }}
             - name: OPS_NAMESPACE
-              value: ops
+              value: {{ .Values.infrastructure.opsNamespace | quote }}
             - name: ZEROCLAW_SERVICE_URL
-              value: http://zeroclaw-ops.ops.svc.cluster.local:42617
+              value: {{ .Values.infrastructure.zeroclawServiceUrl | quote }}
           readinessProbe:
             httpGet:
               path: /health
@@ -50,9 +51,4 @@ spec:
             initialDelaySeconds: 10
             periodSeconds: 15
           resources:
-            requests:
-              cpu: 50m
-              memory: 64Mi
-            limits:
-              cpu: 250m
-              memory: 256Mi
+            {{- toYaml .Values.backend.resources | nindent 12 }}

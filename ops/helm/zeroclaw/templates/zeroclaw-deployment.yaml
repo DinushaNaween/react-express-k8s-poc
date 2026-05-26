@@ -1,0 +1,95 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zeroclaw-ops
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: zeroclaw-ops
+spec:
+  replicas: {{ .Values.zeroclaw.replicaCount }}
+  selector:
+    matchLabels:
+      app: zeroclaw-ops
+  template:
+    metadata:
+      labels:
+        app: zeroclaw-ops
+    spec:
+      serviceAccountName: zeroclaw-ops
+      containers:
+        - name: zeroclaw
+          image: "{{ .Values.zeroclaw.image.repository }}:{{ .Values.zeroclaw.image.tag }}"
+          imagePullPolicy: {{ .Values.zeroclaw.image.pullPolicy }}
+          ports:
+            - name: gateway
+              containerPort: {{ .Values.zeroclaw.gatewayPort }}
+          env:
+            - name: APP_NAMESPACE
+              value: {{ .Values.rbac.appNamespace | quote }}
+            - name: BACKEND_URL
+              value: "http://backend.{{ .Values.rbac.appNamespace }}.svc.cluster.local:3000"
+            {{- if .Values.ollama.enabled }}
+            - name: OLLAMA_HOST
+              value: "http://ollama.{{ .Values.global.namespace }}.svc.cluster.local:11434"
+            {{- end }}
+            - name: ZEROCLAW_ALLOW_PUBLIC_BIND
+              value: "true"
+            - name: ZEROCLAW_GATEWAY_PORT
+              value: {{ .Values.zeroclaw.gatewayPort | quote }}
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: skills
+              mountPath: /skills
+            - name: scripts
+              mountPath: /scripts
+            - name: data
+              mountPath: /zeroclaw-data
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.zeroclaw.gatewayPort }}
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.zeroclaw.gatewayPort }}
+            initialDelaySeconds: 60
+            periodSeconds: 30
+          resources:
+            {{- toYaml .Values.zeroclaw.resources | nindent 12 }}
+      volumes:
+        - name: config
+          configMap:
+            name: zeroclaw-config
+            items:
+              - key: config.toml
+                path: config.toml
+        - name: skills
+          configMap:
+            name: zeroclaw-config
+            items:
+              - key: SKILL.md
+                path: SKILL.md
+        - name: scripts
+          configMap:
+            name: zeroclaw-config
+            items:
+              - key: health-repair.sh
+                path: health-repair.sh
+        - name: data
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: zeroclaw-ops
+  namespace: {{ .Values.global.namespace }}
+spec:
+  selector:
+    app: zeroclaw-ops
+  ports:
+    - name: gateway
+      port: {{ .Values.zeroclaw.gatewayPort }}
+      targetPort: {{ .Values.zeroclaw.gatewayPort }}

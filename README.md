@@ -267,21 +267,30 @@ kubectl rollout restart deployment/backend deployment/frontend -n nrdc-poc
 
 | Path | Purpose |
 |------|---------|
-| `backend/` | Express API — `/health`, `/api/hello`, `/api/items`, `/api/cluster` |
-| `frontend/` | Vite + React UI |
-| `k8s/` | Namespace, RBAC, Deployments, Services, Ingress |
+| `backend/` | Express API — health, cluster, infrastructure, test lab |
+| `frontend/` | Vite + React UI — dashboard, test lab, cluster panel |
+| `deploy/helm/nrdc-poc/` | App Helm chart (Option E) |
+| `deploy/terraform/` | App Terraform environments |
+| `platform/terraform/` | k3d cluster Terraform |
+| `ops/helm/zeroclaw/` | ZeroClaw gateway, event healer, repair CronJob |
+| `ops/terraform/` | Ops Terraform environments |
+| `k8s/` | Legacy flat manifests (Options B/C reference) |
 | `docker-compose.yml` | Option B — local containers |
-| `scripts/` | Prerequisites check, build, deploy helpers |
+| `scripts/` | Prerequisites, build, deploy, test helpers |
+| `docs/local-setup.md` | Full Option E guide |
 
 ### Scripts reference
 
 | Script | Purpose |
 |--------|---------|
-| `check-prerequisites.ps1` / `.sh` / `.cmd` | Verify tools installed (use this first; `.cmd` pauses on Windows) |
-| `build-images.ps1` / `.sh` | Build `nrdc-poc-backend` and `nrdc-poc-frontend` images |
-| `deploy-local-k3d.ps1` / `.sh` | Build + import + apply + restart (Option C) |
-| `deploy-k8s.sh` | Apply all manifests under `k8s/` |
-| `import-images-k3s.sh` | Load images into k3s containerd (Linux VM) |
+| `check-prerequisites.ps1` / `.sh` / `.cmd` | Verify tools (profiles: `dev`, `compose`, `kubernetes`, `local`) |
+| `build-images.ps1` / `.sh` | Build app container images |
+| `import-images-k3d.ps1` | Build + import app and ops images into k3d |
+| `local-deploy.ps1` | Full Option E deploy (platform → deploy → ops) |
+| `local-destroy.ps1` | Tear down Option E stack |
+| `local-e2e-test.ps1` | E2E validation (app + L1 heal) |
+| `local-ops-test.ps1` | Ops layer validation (ZeroClaw + CronJob) |
+| `deploy-local-k3d.ps1` / `.sh` | Legacy Option C — flat k8s manifests |
 | `dev.ps1` | Start backend dev server (Windows) |
 
 ---
@@ -304,15 +313,26 @@ kubectl rollout restart deployment/backend deployment/frontend -n nrdc-poc
 
 ## Architecture
 
+**Option C (legacy):** Browser → Ingress → Frontend / Backend → Kubernetes API
+
+**Option E (local-first):**
+
 ```mermaid
-flowchart LR
+flowchart TB
   Browser --> Ingress
-  Ingress -->|"/"| Frontend
-  Ingress -->|"/api, /health"| Backend
-  Backend -->|in-cluster API| K8sAPI[Kubernetes API]
+  Ingress --> Frontend
+  Ingress --> Backend
+  Backend --> K8sAPI[Kubernetes API]
+  Backend --> ZeroClawGW[ZeroClaw gateway]
+  EventHealer[nrdc-event-healer] -->|creates repair jobs| RepairJob
+  CronJob[nrdc-cluster-ops CronJob] -->|scheduled fallback| RepairJob
+  RepairJob[health-repair.sh] --> K8sAPI
+  PlatformTF[platform Terraform] --> k3d
+  DeployTF[deploy Terraform] --> AppHelm[nrdc-poc Helm]
+  OpsTF[ops Terraform] --> OpsHelm[zeroclaw-ops Helm]
 ```
 
-The backend uses a **read-only ServiceAccount** to list nodes, pods, and deployments for the UI.
+The backend uses a **read-only ServiceAccount** (extended for test lab: pod delete, job create, log read).
 
 ---
 
@@ -329,11 +349,59 @@ The backend uses a **read-only ServiceAccount** to list nodes, pods, and deploym
 
 ## Demo script (tech lead)
 
+**Option C / legacy:**
+
 1. `kubectl get nodes` — show cluster size.
 2. Open UI — **Cluster summary** (node count, version, pods).
 3. `kubectl get pods -n nrdc-poc -o wide` — match UI to CLI.
-4. `kubectl delete pod -n nrdc-poc -l app=backend` — pod recreates (resilience).
-5. Mention next steps: image registry, Helm, TLS, CI/CD.
+4. `kubectl delete pod -n nrdc-poc -l app=backend` — pod recreates (L1).
+
+**Option E (recommended):**
+
+1. Open http://nrdc-poc.local — show **Infrastructure overview** (3 Terraform layers).
+2. Show **Auto-heal pipeline** — L1, L2-event, L2-scheduled.
+3. In **Failure test lab**, kill a probe — watch activity log and probe cards recover.
+4. Mention scheduled fallback (CronJob every 2 min) if event healer misses a failure.
+5. `.\scripts\local-e2e-test.ps1` — automated validation.
+
+---
+
+## Option E — Local-first (Terraform + ZeroClaw on k3d)
+
+Full instruction-as-infra stack on your laptop **before Azure**. Uses three Terraform roots (platform → deploy → ops), Helm charts, and a dual-layer healer (event-driven + scheduled fallback).
+
+**Prerequisites:** Docker Desktop (≥8 GB RAM), k3d, kubectl, Terraform, Helm
+
+```powershell
+.\scripts\check-prerequisites.ps1 -Profile local
+```
+
+Add to hosts file: `127.0.0.1  nrdc-poc.local`
+
+**Deploy:**
+
+```powershell
+.\scripts\local-deploy.ps1 -AutoApprove
+```
+
+**Test:**
+
+```powershell
+.\scripts\local-e2e-test.ps1
+.\scripts\local-ops-test.ps1
+```
+
+**Destroy:**
+
+```powershell
+.\scripts\local-destroy.ps1 -AutoApprove
+```
+
+**Open:** http://nrdc-poc.local
+
+The UI includes an **infrastructure dashboard** (Terraform layers, auto-heal pipeline), **failure test lab** (kill probes, watch healer activity), and **cluster details**.
+
+See [docs/local-setup.md](docs/local-setup.md) for architecture, API endpoints, redeploy steps, and troubleshooting.
 
 ---
 

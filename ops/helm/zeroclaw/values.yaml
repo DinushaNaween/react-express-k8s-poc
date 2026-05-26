@@ -1,0 +1,56 @@
+global:
+  namespace: ops
+
+zeroclaw:
+  image:
+    repository: nrdc-zeroclaw-ops
+    tag: local
+    pullPolicy: IfNotPresent
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 200m
+      memory: 512Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+  gatewayPort: 42617
+
+ollama:
+  enabled: true
+  image: ollama/ollama:latest
+  model: llama3.2:1b
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1536Mi
+    limits:
+      cpu: 2000m
+      memory: 3Gi
+
+app:
+  namespace: nrdc-poc
+  helmRelease: nrdc-poc
+
+rbac:
+  appNamespace: nrdc-poc
+
+cron:
+  intervalMinutes: 2
+
+eventHealer:
+  enabled: true
+  pollSeconds: 3
+  graceSeconds: 8
+  debounceSeconds: 15
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 128Mi
+
+config:
+  provider: ollama
+  model: llama3.2:1b

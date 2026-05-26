@@ -1,0 +1,46 @@
+global:
+  namespace: nrdc-poc
+
+backend:
+  image:
+    repository: nrdc-poc-backend
+    tag: latest
+    pullPolicy: IfNotPresent
+  replicaCount: 2
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+
+frontend:
+  image:
+    repository: nrdc-poc-frontend
+    tag: latest
+    pullPolicy: IfNotPresent
+  replicaCount: 2
+  resources:
+    requests:
+      cpu: 25m
+      memory: 32Mi
+    limits:
+      cpu: 200m
+      memory: 128Mi
+
+ingress:
+  enabled: true
+  className: traefik
+  host: nrdc-poc.local
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web
+
+pdb:
+  enabled: true
+  minAvailable: 1
+
+infrastructure:
+  environment: local
+  opsNamespace: ops
+  zeroclawServiceUrl: http://zeroclaw-ops.ops.svc.cluster.local:42617
